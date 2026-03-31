@@ -37,8 +37,16 @@ class BootstrapWindowsWrapperTests(unittest.TestCase):
         wrapper = self._read_wrapper()
 
         self.assertIn("$MyInvocation.UnboundArguments", wrapper)
-        self.assertIn("$args.Count -gt 0", wrapper)
+        self.assertIn("Get-Variable -Name args -ErrorAction SilentlyContinue", wrapper)
+        self.assertIn("$topLevelArgs.Count -gt 0", wrapper)
         self.assertIn('$SetupArgs = @($MyInvocation.UnboundArguments | ForEach-Object { [string]$_ })', wrapper)
+        self.assertIn('$SetupArgs = $topLevelArgs', wrapper)
+
+    def test_windows_wrapper_does_not_reference_unbound_args_directly_under_strict_mode(self) -> None:
+        wrapper = self._read_wrapper()
+
+        self.assertNotIn("$args.Count -gt 0", wrapper)
+        self.assertNotIn('$SetupArgs = @($args | ForEach-Object { [string]$_ })', wrapper)
 
     def test_windows_wrapper_handles_missing_assume_yes_env_without_null_method_call(self) -> None:
         wrapper = self._read_wrapper()
