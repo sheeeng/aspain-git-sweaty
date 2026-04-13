@@ -132,11 +132,28 @@ class TooltipActivityLinksTests(unittest.TestCase):
             result,
             [
                 [{"text": "Trail Run: 1"}],
-                [{"text": "Distance: 3.25 mi"}],
-                [{"text": "Elevation: 476 ft"}],
-                [{"text": "Duration: 38m"}],
+                [{"text": "- Distance: 3.25 mi"}],
+                [{"text": "- Elevation: 476 ft"}],
+                [{"text": "- Duration: 38m"}],
                 [{"text": "Other Workout: 1"}],
-                [{"text": "Duration: 1h 12m"}],
+                [{"text": "- Duration: 1h 12m"}],
+            ],
+        )
+
+    def test_single_activity_metric_lines_use_hyphen_prefix(self) -> None:
+        result = self._run_js(
+            "formatTooltipMetricLines(payload.entry, payload.units, '- ')",
+            {
+                "entry": {"distance": 1609.344, "elevation_gain": 30.48, "moving_time": 3600},
+                "units": {"distance": "mi", "elevation": "ft"},
+            },
+        )
+        self.assertEqual(
+            result,
+            [
+                [{"text": "- Distance: 1.00 mi"}],
+                [{"text": "- Elevation: 100 ft"}],
+                [{"text": "- Duration: 1h 0m"}],
             ],
         )
 
